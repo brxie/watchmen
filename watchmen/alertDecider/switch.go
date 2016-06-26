@@ -4,7 +4,6 @@ import (
 	"github.com/stianeikeland/go-rpio"
 )
 
-
 type Switch struct {
     switchGpioPin *rpio.Pin
 }

@@ -53,7 +53,6 @@ func Run() {
 }
 
 func startWatch(w *watcher) {
-
     // scan directory with captured images and upload thought ftp
     w.uploader.PeriodicalScanAndSend()
     for {
