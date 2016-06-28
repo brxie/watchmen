@@ -43,7 +43,7 @@ func NewUploader(host string, port uint16, user string, passwd string) *Uploader
 }
 
 
-func (u *Uploader) connect() { 
+func (u *Uploader) connect() {
     address := u.host + ":" + strconv.Itoa(int(u.port))
     for {
         client, err := goftp.Connect(address)
@@ -69,7 +69,7 @@ func (u *Uploader) PeriodicalScanAndSend() {
             filepath.Walk(u.ScanAndSend.ScanPath, func(path string, f os.FileInfo, err error) error {
                 if f.IsDir() == false {
                     fullPath := u.ScanAndSend.ScanPath + "/" + f.Name()
-                    log.Printf("Uploading: %v\n", fullPath)
+                    log.Printf("[uploader] Uploading: %v\n", fullPath)
                     err := u.send(&fullPath)
                     if err != nil {
                         log.Printf("%v\n", err)
@@ -80,16 +80,16 @@ func (u *Uploader) PeriodicalScanAndSend() {
                     }
                 }
                 return nil
-            })         
+            })
             time.Sleep(time.Second * u.ScanAndSend.BackoffTime)
         }
     }()
-    
+
 }
 
 func removeFile(fullPath *string) {
     err := os.Remove(*fullPath)
-    log.Println("Removing:", *fullPath)
+    log.Println("[uploader] Removing:", *fullPath)
     if err != nil {
         log.Printf("%v\n", err)
     }
@@ -100,7 +100,7 @@ func (u *Uploader) send(fileName *string) error {
     if err != nil {
         return err
     }
-    
+
     if err := u.client.Cwd(u.destPath); err != nil {
         return err
     }
@@ -108,6 +108,6 @@ func (u *Uploader) send(fileName *string) error {
     if err := u.client.Stor(path.Base(*fileName), file); err != nil {
         return err
     }
-    
+
     return nil
 }

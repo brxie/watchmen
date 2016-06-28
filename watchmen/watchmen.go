@@ -1,11 +1,11 @@
 package watchmen
 import (
-	"time"
-	"watchmen/alertDecider"
-	"watchmen/horn"
-	"watchmen/camera"
-	"watchmen/uploader"
-	"log"
+    "time"
+    "watchmen/alertDecider"
+    "watchmen/horn"
+    "watchmen/camera"
+    "watchmen/uploader"
+    "log"
 )
 
 type watcher struct {
@@ -15,10 +15,9 @@ type watcher struct {
     alertDecider *alertDecider.AlertDecider
 }
 
-
 func Run() {
-	log.Println("Watchmen start") 
-	
+    log.Println("Watchmen start")
+
     // init alert decider
     switch_ := alertDecider.InitSwitch(23)
     sensors  := alertDecider.InitSensorsGpio([]uint8{24})
@@ -31,24 +30,24 @@ func Run() {
         Switch: switch_,
         Bluetooth: bluetooth,
     }
-    
+
     // init horn
-	horn := horn.NewHorn(25)
-    
+    horn := horn.NewHorn(25)
+
     // init camera
     cam := camera.NewCamera("/dev/video0", "/var/watchmen/DCIM", 75)
-    
+
     // init uploader
-	upld := uploader.NewUploader("5.1.1.1", 21, "*****", "*****")
+    upld := uploader.NewUploader("5.1.1.1", 21, "*****", "*****")
     upld.ScanAndSend.ScanPath = "/var/watchmen/DCIM"
-    
+
     w := &watcher {
         horn: horn,
         camera: cam,
         uploader: upld,
         alertDecider: decider,
     }
-    
+
     startWatch(w)
 }
 
@@ -59,8 +58,8 @@ func startWatch(w *watcher) {
         if w.alertDecider.ShouldBeLaunched() {
             w.horn.StartAsync(15)
             w.camera.CaptureAsync()
-        } 
-        
+        }
+
         // force deactivate alarm if it is requested
         if w.horn.IsHornRunning() {
             if w.alertDecider.ShouldBeStopped() {
@@ -68,7 +67,6 @@ func startWatch(w *watcher) {
             }
         }
 
-        
-        time.Sleep(time.Second)
+        time.Sleep(time.Second * 3)
     }
 }
