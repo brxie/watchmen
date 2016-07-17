@@ -1,0 +1,34 @@
+# on off switch
+switch:
+  pin: 23
+
+# miotion sensors
+sensors:
+  pins:
+    - 24
+
+# bluetooth
+bluetooth:
+  devices:
+    - aa:bb:cc:dd:ee:ff
+    - 00:11:22:33:44:55
+
+# horn
+horn:
+  pin: 25
+  duration: 15 # in seconds
+
+# camera
+camera:
+  device: /dev/video0
+  images_dir: /var/watchmen/DCIM
+  quality: 75
+  resolution: 800x600
+
+# file uploader
+uploader:
+  ftp:
+    ip: 10.10.10.10
+    port: 21
+    user: ftpuser
+    password: ftppass

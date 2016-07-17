@@ -25,7 +25,7 @@ type ScanAndSend struct {
     ScanPath string
 }
 
-func NewUploader(host string, port uint16, user string, passwd string) *Uploader {
+func NewUploader(host string, port uint16, user string, passwd string, imagesDir string) *Uploader {
     upld := &Uploader {
         host: host,
         port: port,
@@ -35,25 +35,25 @@ func NewUploader(host string, port uint16, user string, passwd string) *Uploader
         client: nil,
         ScanAndSend: &ScanAndSend {
             BackoffTime: 1,
-            ScanPath: "/var/watchmen/DCIM",
+            ScanPath: imagesDir,
         },
     }
-    upld.connect()
     return upld
 }
-
 
 func (u *Uploader) connect() {
     address := u.host + ":" + strconv.Itoa(int(u.port))
     for {
         client, err := goftp.Connect(address)
         if err != nil {
-            log.Println(err)
+            log.Printf("[uploader] %v", err)
+            time.Sleep(time.Second * 30)
             continue
         }
         err = client.Login(u.user, u.passwd)
         if err != nil {
-            log.Println(err)
+            log.Printf("[uploader] %v", err)
+            time.Sleep(time.Second * 30)
             continue
         }
         u.client = client
@@ -64,15 +64,15 @@ func (u *Uploader) connect() {
 
 func (u *Uploader) PeriodicalScanAndSend() {
     go func() {
+        u.connect()
         for {
-            //log.Printf("Scan and sending %v\n", u.ScanAndSend.ScanPath)
             filepath.Walk(u.ScanAndSend.ScanPath, func(path string, f os.FileInfo, err error) error {
                 if f.IsDir() == false {
                     fullPath := u.ScanAndSend.ScanPath + "/" + f.Name()
                     log.Printf("[uploader] Uploading: %v\n", fullPath)
                     err := u.send(&fullPath)
                     if err != nil {
-                        log.Printf("%v\n", err)
+                        log.Printf("[uploader] %v\n", err)
                         // reinitialize connection when uploading failed
                         u.connect()
                     } else {
@@ -84,7 +84,6 @@ func (u *Uploader) PeriodicalScanAndSend() {
             time.Sleep(time.Second * u.ScanAndSend.BackoffTime)
         }
     }()
-
 }
 
 func removeFile(fullPath *string) {

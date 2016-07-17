@@ -13,6 +13,7 @@ type Camera struct {
     Device string
     ImagesPath string
     Quality uint8
+    Resolution string
     AsyncWorker *asyncWorker
 }
 
@@ -20,7 +21,7 @@ type asyncWorker struct {
     workRequest chan bool
 }
 
-func NewCamera(device, imagesPath string, quality uint8) (cam *Camera) {
+func NewCamera(device, imagesPath string, quality uint8, resolution string) (cam *Camera) {
     // create images dir if not exist
     mkdir(&imagesPath)
 
@@ -28,6 +29,7 @@ func NewCamera(device, imagesPath string, quality uint8) (cam *Camera) {
     cam.Device = device
     cam.ImagesPath = imagesPath
     cam.Quality = quality
+    cam.Resolution = resolution
     cam.AsyncWorker = &asyncWorker {
         workRequest: make(chan bool, 1),
     }
@@ -36,7 +38,7 @@ func NewCamera(device, imagesPath string, quality uint8) (cam *Camera) {
 
 func (c *Camera) Capture() string {
     outBaseName := getUnixTime() + "_000.jpeg"
-    log.Printf("[camera] Capturing images in format %v", outBaseName)
+    log.Printf("[camera] Capturing images with pattern %v", outBaseName)
     /*
      streamer parameters
         -t times    number of frames or hh:mm:ss
@@ -46,7 +48,7 @@ func (c *Camera) Capture() string {
         -s size     specify size
     */
     cmd := exec.Command("streamer", "-t 00:00:06", "-r 4", "-o" + outBaseName, "-q",
-                        "-j " + strconv.Itoa(int(c.Quality)), "-s " + "800x600")
+                        "-j " + strconv.Itoa(int(c.Quality)), "-s " + c.Resolution)
     cmd.Dir = c.ImagesPath
     cmd.Stderr = os.Stderr
     cmd.Run()

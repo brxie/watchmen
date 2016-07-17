@@ -17,12 +17,13 @@ type watcher struct {
 
 func Run() {
     log.Println("Watchmen start")
+    config := GetConfig("config.yml")
 
     // init alert decider
-    switch_ := alertDecider.InitSwitch(23)
-    sensors  := alertDecider.InitSensorsGpio([]uint8{24})
-    btDevices := []string{"D8:9E:3F:DD:7A:DA", "CC:07:E4:2C:E9:C5"}
-    bluetooth := alertDecider.InitBluetooth(btDevices)
+    switch_ := alertDecider.InitSwitch(config.Switch.Pin)
+    sensors  := alertDecider.InitSensorsGpio(config.Sensors.Pins)
+
+    bluetooth := alertDecider.InitBluetooth(config.Bluetooth.Devices)
     bluetooth.Start()
 
     decider := &alertDecider.AlertDecider {
@@ -32,14 +33,21 @@ func Run() {
     }
 
     // init horn
-    horn := horn.NewHorn(25)
+    horn := horn.NewHorn(config.Horn.Pin, config.Horn.Duration)
 
     // init camera
-    cam := camera.NewCamera("/dev/video0", "/var/watchmen/DCIM", 75)
+    cam := camera.NewCamera(config.Camera.Device,
+                            config.Camera.ImagesDir,
+                            config.Camera.Quality,
+                            config.Camera.Resolution)
 
     // init uploader
-    upld := uploader.NewUploader("5.1.1.1", 21, "*****", "*****")
-    upld.ScanAndSend.ScanPath = "/var/watchmen/DCIM"
+    ftpCfg := config.Uploader.Ftp
+    upld := uploader.NewUploader(ftpCfg.IP,
+                                 ftpCfg.Port,
+                                 ftpCfg.User,
+                                 ftpCfg.Password,
+                                 config.Camera.ImagesDir)
 
     w := &watcher {
         horn: horn,
@@ -56,7 +64,7 @@ func startWatch(w *watcher) {
     w.uploader.PeriodicalScanAndSend()
     for {
         if w.alertDecider.ShouldBeLaunched() {
-            w.horn.StartAsync(15)
+            w.horn.StartAsync()
             w.camera.CaptureAsync()
         }
 

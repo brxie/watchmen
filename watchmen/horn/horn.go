@@ -8,6 +8,7 @@ import (
 
 type Horn struct {
     gpioPin *rpio.Pin
+    duration int64
     asycWorker *asyncWorker
 }
 
@@ -16,7 +17,7 @@ type asyncWorker struct {
     workRequest chan bool
 }
 
-func NewHorn(gpio int) *Horn {
+func NewHorn(gpio int, duration int64) *Horn {
     rpio.Open()
     pin := rpio.Pin(gpio)
     pin.Output()
@@ -24,6 +25,7 @@ func NewHorn(gpio int) *Horn {
 
     return &Horn{
         gpioPin: &pin,
+        duration: duration,
         asycWorker: &asyncWorker{
             workers: make(chan byte, 10),
             workRequest: make(chan bool, 10),
@@ -31,7 +33,7 @@ func NewHorn(gpio int) *Horn {
     }
 }
 
-func (h *Horn) StartAsync(duration int64) {
+func (h *Horn) StartAsync() {
     log.Printf("[horn] activating horn")
     go func() {
         // disable horn on finish
@@ -44,7 +46,7 @@ func (h *Horn) StartAsync(duration int64) {
 
         h.asycWorker.workers <- 1
         startTime := time.Now().Unix()
-        for time.Now().Unix() < startTime + duration {
+        for time.Now().Unix() < startTime + h.duration {
             h.asycWorker.workRequest <- true
             if v := <-h.asycWorker.workRequest; v {
                 h.gpioPin.Toggle()
@@ -57,7 +59,6 @@ func (h *Horn) StartAsync(duration int64) {
         }
         <-h.asycWorker.workers
     }()
-
 }
 
 func (h *Horn) killCurrWorker(){
