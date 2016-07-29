@@ -32,3 +32,17 @@ uploader:
     port: 21
     user: ftpuser
     password: ftppass
+
+# notifiers
+notifier:
+  # smtp config
+  mail:
+    user: sender@gmail.com
+    password: foopass
+    host: smtp.gmail.com
+    port: 587
+    from: sender@gmail.com
+    recipients:
+      - recipient@gmail.com
+      - recipient@gmail.com
+

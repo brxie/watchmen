@@ -5,6 +5,7 @@ import (
     "watchmen/horn"
     "watchmen/camera"
     "watchmen/uploader"
+    "watchmen/notifier"
     "log"
 )
 
@@ -13,6 +14,7 @@ type watcher struct {
     camera *camera.Camera
     uploader *uploader.Uploader
     alertDecider *alertDecider.AlertDecider
+    notifier *notifier.Notifier
 }
 
 func Run() {
@@ -49,11 +51,20 @@ func Run() {
                                  ftpCfg.Password,
                                  config.Camera.ImagesDir)
 
+    // init notifier
+    mailCfg := config.Notifier.Mail
+    mail := notifier.NewMail(mailCfg.User, mailCfg.Password, mailCfg.Host,
+                             mailCfg.Port, mailCfg.From, mailCfg.Recipients)
+    notifier := &notifier.Notifier {
+        Mail: mail,
+    }
+                                 
     w := &watcher {
         horn: horn,
         camera: cam,
         uploader: upld,
         alertDecider: decider,
+        notifier: notifier,
     }
 
     startWatch(w)
@@ -66,6 +77,7 @@ func startWatch(w *watcher) {
         if w.alertDecider.ShouldBeLaunched() {
             w.horn.StartAsync()
             w.camera.CaptureAsync()
+            w.notifier.Mail.SendAsync(new(string))
         }
 
         // force deactivate alarm if it is requested
