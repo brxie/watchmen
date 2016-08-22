@@ -32,7 +32,7 @@ func (s *Sensors) GetRaisedSensors() []uint8 {
     return rsens
 }
 
-func (s *Sensors) anySensorRaised() (r bool) {
+func (s *Sensors) AnySensorRaised() (r bool) {
     if rsens := s.GetRaisedSensors(); len(rsens) > 0 {
         r = true
     }

@@ -46,3 +46,10 @@ notifier:
       - recipient@gmail.com
       - recipient@gmail.com
 
+# LCD SSD1306 I2C
+lcd:
+  i2c_buss_addr: 0x01
+  dev_addr: 0x3c
+  height: 64
+  width: 128
+

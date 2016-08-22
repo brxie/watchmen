@@ -8,14 +8,14 @@ import (
 
 type Bluetooth struct {
     DevicesMAC []string
-    anyDevAlive bool
+    AnyDevAlive bool
     lastState bool
 }
 
 func InitBluetooth(devices []string) *Bluetooth {
     return &Bluetooth {
         DevicesMAC: devices,
-        anyDevAlive: true,
+        AnyDevAlive: true,
         lastState: true,
     }
 }
@@ -46,7 +46,7 @@ func (b *Bluetooth) Start() {
                 deadCnt++
             }
 
-            // clear anyDevAlive flag if no device alive
+            // clear AnyDevAlive flag if no device alive
             if deadCnt >= len(b.DevicesMAC) {
                 b.updateState(false)
                 deadCnt = 0
@@ -56,9 +56,9 @@ func (b *Bluetooth) Start() {
 }
 
 func (b *Bluetooth) updateState(state bool) {
-    b.anyDevAlive = state
-    if b.lastState != b.anyDevAlive {
-        log.Printf("[bluetooth] any device alive: %v\n", b.anyDevAlive)
+    b.AnyDevAlive = state
+    if b.lastState != b.AnyDevAlive {
+        log.Printf("[bluetooth] any device alive: %v\n", b.AnyDevAlive)
     }
     b.lastState = state
 }

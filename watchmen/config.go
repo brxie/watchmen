@@ -7,13 +7,14 @@ import (
 )
 
 type Config struct {
-    Switch      SwitchConfig
-    Bluetooth   BluetoothConfig
-    Horn        HornConfig
-    Camera      CameraConfig
-    Uploader    UploaderConfig
-    Sensors     SensorsConfig
-    Notifier    NotifierConfig
+    Switch      *SwitchConfig
+    Bluetooth   *BluetoothConfig
+    Horn        *HornConfig
+    Camera      *CameraConfig
+    Uploader    *UploaderConfig
+    Sensors     *SensorsConfig
+    Notifier    *NotifierConfig
+    LCD         *LCDConfig
 }
 
 type SwitchConfig struct {
@@ -25,14 +26,14 @@ type BluetoothConfig struct {
 }
 
 type HornConfig struct {
-    Pin int
+    Pin      int
     Duration int64
 }
 
 type CameraConfig struct {
-    Device string
-    ImagesDir string `yaml:"images_dir"`
-    Quality uint8
+    Device     string
+    ImagesDir  string `yaml:"images_dir"`
+    Quality    uint8
     Resolution string
 }
 
@@ -45,9 +46,9 @@ type UploaderConfig struct {
 }
 
 type FtpConfig struct {
-    IP string
-    Port uint16
-    User string
+    IP       string
+    Port     uint16
+    User     string
     Password string
 }
 
@@ -55,12 +56,19 @@ type NotifierConfig struct {
     Mail MailConfig
 }
 
+type LCDConfig struct {
+    IicBussAddr byte `yaml:"i2c_buss_addr"`
+    DevAddr     byte `yaml:"dev_addr"`
+    Height      int
+    Width       int
+}
+
 type MailConfig struct {
-    User string
-    Password string
-    Host string
-    Port int
-    From string
+    User       string
+    Password   string
+    Host       string
+    Port       int
+    From       string
     Recipients []string
 }
 

@@ -24,7 +24,7 @@ func (a *AlertDecider) ShouldBeLaunched() bool {
     log.Printf("[decider] sensor(s) active: %v\n", raisedSensors)
 
     // check alive bluetooth devices
-    if a.Bluetooth.anyDevAlive == true {
+    if a.Bluetooth.AnyDevAlive == true {
         return false
     }
     log.Println("[decider] no bluetooth device active")
@@ -39,7 +39,7 @@ func (a *AlertDecider) ShouldBeStopped() bool {
         return true
     }
 
-    if a.Bluetooth.anyDevAlive == true {
+    if a.Bluetooth.AnyDevAlive == true {
         return true
     }
 

@@ -42,14 +42,14 @@ func (m *Mail) Send(msgBody *string) {
     auth := smtp.PlainAuth("", m.User, m.Password, m.Host)
 
     recsStr := getRecipientsStr(m.Recipients)
-	msg := []byte("To: " + *recsStr + "\r\n" +
-		"Subject: " + m.Subject + "\r\n" +
-		"\r\n" + *msgBody + "\r\n")
+    msg := []byte("To: " + *recsStr + "\r\n" +
+        "Subject: " + m.Subject + "\r\n" +
+        "\r\n" + *msgBody + "\r\n")
 
-	err := smtp.SendMail(m.Host + ":" + strconv.Itoa(m.Port), auth, m.From, m.Recipients, msg)
-	if err != nil {
-		log.Println(err)
-	}
+    err := smtp.SendMail(m.Host + ":" + strconv.Itoa(m.Port), auth, m.From, m.Recipients, msg)
+    if err != nil {
+        log.Println(err)
+    }
 }
 
 func getRecipientsStr(recipients []string) *string {

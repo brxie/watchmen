@@ -6,6 +6,7 @@ import (
     "watchmen/camera"
     "watchmen/uploader"
     "watchmen/notifier"
+    "watchmen/LCD"
     "log"
 )
 
@@ -58,8 +59,21 @@ func Run() {
     notifier := &notifier.Notifier {
         Mail: mail,
     }
-                                 
-    w := &watcher {
+
+    // init LCD
+    units := &LCD.StateUnits {
+        Switch_:    switch_,
+        Sensor:     sensors,
+        Bluetooth:  bluetooth,
+        Horn:       horn,
+    }
+    
+    lcd := LCD.NewLCD(config.LCD.IicBussAddr, config.LCD.DevAddr,
+        config.LCD.Height, config.LCD.Width, units)
+    lcd.Display()
+
+    // start watcher
+    watcher := &watcher {
         horn: horn,
         camera: cam,
         uploader: upld,
@@ -67,7 +81,8 @@ func Run() {
         notifier: notifier,
     }
 
-    startWatch(w)
+    startWatch(watcher)
+
 }
 
 func startWatch(w *watcher) {
@@ -79,9 +94,8 @@ func startWatch(w *watcher) {
             w.camera.CaptureAsync()
             w.notifier.Mail.SendAsync(new(string))
         }
-
         // force deactivate alarm if it is requested
-        if w.horn.IsHornRunning() {
+        if w.horn.IsRunning {
             if w.alertDecider.ShouldBeStopped() {
                 w.horn.ForceStop()
             }

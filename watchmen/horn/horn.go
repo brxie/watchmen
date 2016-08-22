@@ -10,6 +10,7 @@ type Horn struct {
     gpioPin *rpio.Pin
     duration int64
     asycWorker *asyncWorker
+    IsRunning bool
 }
 
 type asyncWorker struct {
@@ -30,14 +31,18 @@ func NewHorn(gpio int, duration int64) *Horn {
             workers: make(chan byte, 10),
             workRequest: make(chan bool, 10),
         },
+        IsRunning: false,
     }
 }
 
 func (h *Horn) StartAsync() {
     log.Printf("[horn] activating horn")
+    h.setState(true)
+
     go func() {
         // disable horn on finish
         defer h.gpioPin.Low()
+        defer h.setState(false)
 
         // when trying to create new horn, fist kill the current one if is running
         if len(h.asycWorker.workers) != 0 {
@@ -46,10 +51,10 @@ func (h *Horn) StartAsync() {
 
         h.asycWorker.workers <- 1
         startTime := time.Now().Unix()
+        h.gpioPin.High()
         for time.Now().Unix() < startTime + h.duration {
             h.asycWorker.workRequest <- true
             if v := <-h.asycWorker.workRequest; v {
-                h.gpioPin.Toggle()
                 time.Sleep(time.Millisecond * 120)
             } else {
                 <-h.asycWorker.workRequest
@@ -59,6 +64,11 @@ func (h *Horn) StartAsync() {
         }
         <-h.asycWorker.workers
     }()
+    
+}
+
+func (h *Horn) setState (state bool) {
+    h.IsRunning = state
 }
 
 func (h *Horn) killCurrWorker(){
@@ -70,11 +80,4 @@ func (h *Horn) killCurrWorker(){
 
 func (h *Horn) ForceStop() {
     h.asycWorker.workRequest <- false
-}
-
-func (h *Horn) IsHornRunning() bool {
-    if len(h.asycWorker.workers) != 0 {
-        return true
-    }
-    return false
 }
