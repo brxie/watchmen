@@ -236,7 +236,7 @@ func (w *LcdWrapper) WriteImage(fileName string, pos int) {
 
 func (w *LcdWrapper) WriteHLine(pos, len int) {
     for i := 0; i < len; i += 1 {
-        w.Dev.WriteData(0x01, i + pos)
+        w.Dev.WriteData(0x10, i + pos)
     }
 }
 
@@ -248,7 +248,7 @@ func (w *LcdWrapper) WriteVLine(pos, rows int) {
 
 func (w *LcdWrapper) WriteHDots(pos, len int) {
     for i := 0; i < len; i += 2 {
-        w.Dev.WriteData(0x01, i + pos)
+        w.Dev.WriteData(0x10, i + pos)
     }
 }
 

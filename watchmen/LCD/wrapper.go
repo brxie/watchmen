@@ -28,14 +28,6 @@ var (
     }
 )
 
-func (w *LcdWrapper) DrawLayout() {
-    w.WriteVDots(32, 3)
-    w.WriteVDots(64, 3)
-    w.WriteVDots(96, 3)
-    w.WriteHDots(w.Width * 3, w.Width)
-    w.Dev.Display()
-}
-
 func (w *LcdWrapper) DrawIcon(icon *Icon) {
     w.WriteImage(icon.file, icon.position)
     w.Dev.Display()
