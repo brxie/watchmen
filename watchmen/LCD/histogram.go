@@ -49,7 +49,7 @@ func (dc *dataCollector) fill(count int) {
 }
 
 func (dc *dataCollector) updateSeries() {
-    elapsed := time.Since(dc.startTime.Round(time.Second)).Hours()
+    elapsed := time.Since(dc.startTime.Round(time.Hour)).Hours()
     timeUnits := 1
     stakeId := int(int(elapsed) / timeUnits) 
     if stakeId > dc.lastStakeId {
@@ -116,8 +116,8 @@ func (h *histogram) drawBoundVal() {
     // draw max and min values next to histogram
     max := h.max(h.dataCollector.stakes)
     h.lcdWrapper.DisplayString("   ", int(h.position + 1) * h.lcdWrapper.Width)
-    h.lcdWrapper.DisplayString("0", (int(h.position) + int(h.height)) * h.lcdWrapper.Width)
     h.lcdWrapper.DisplayString(strconv.Itoa(max), int(h.position + 1) * h.lcdWrapper.Width)
+    h.lcdWrapper.DisplayString("0", (int(h.position) + int(h.height)) * h.lcdWrapper.Width)
 }
 
 func (h *histogram) drawScale() {
@@ -146,7 +146,7 @@ func (h *histogram) getBeginHour(offsetHours int) string {
 
 func (h *histogram) max(arr []int) int {
     var n, max int
-    for v := range arr {
+    for _, v := range arr {
     if v > n {
       n = v
       max = n
